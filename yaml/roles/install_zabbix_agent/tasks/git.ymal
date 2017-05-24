@@ -1,0 +1,24 @@
+- name: Install git
+  apt: pkg=git state=present update_cache=yes
+
+
+- name: Check if ef-zabbix-script is download
+  stat: path=/var/lib/ef_zabbix/zabbix_agentd.conf
+  register: ef_zabbix_download
+
+- name: Get ef-zabbix-script
+  git:
+   repo=https://lisa.shen:{{ git_ansible_pass }}@stash.englishtown.com/scm/~lisa.shen/ef_zabbix.git
+       dest=/tmp/ef-zabbix
+       accept_hostkey=yes
+       force=yes
+  when: ef_zabbix_download.stat.exists == false
+
+- name: Place  ef-scripts
+  command: cp -a /tmp/ef-zabbix /var/lib
+  when: ef_zabbix_download.stat.exists == false
+
+- name: Delete ef-scripts from root
+  file: path=/tmp/ef_zabbix state=absent
+  when: ef_zabbix_download.stat.exists == false
+

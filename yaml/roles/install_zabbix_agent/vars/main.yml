@@ -1,0 +1,8 @@
+zabbix_user: zabbix
+zabbix_dir: /etc/zabbix
+bj_zabbix_server_ip: 10.163.13.99
+sg_zabbix_server_ip: 10.160.114.182
+zabbix_ubuntu_trusty_url: http://repo.zabbix.com/zabbix/3.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.2-1+trusty_all.deb
+zabbix_ubuntu_xenial_url: http://repo.zabbix.com/zabbix/3.2/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.2-1+xenial_all.deb
+zabbix_ubuntu_trusty_pkg: zabbix-release_3.2-1+trusty_all
+zabbix_ubuntu_xenial_pkg: zabbix-release_3.2-1+xenial_all

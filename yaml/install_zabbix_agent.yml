@@ -1,0 +1,5 @@
+- hosts: all
+  remote_user: ubuntu
+  sudo: yes
+  roles:
+   - install_zabbix_agent

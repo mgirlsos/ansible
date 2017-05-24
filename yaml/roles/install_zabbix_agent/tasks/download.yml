@@ -1,0 +1,37 @@
+- name: Check if zabbix-agent is installed
+  command: dpkg-query -W zabbix-agent
+  register: package_check_deb
+  failed_when: package_check_deb.rc > 1
+  changed_when: package_check_deb.rc == 1
+
+- name: Download zabbix-release_3.2-1+trusty_all.deb
+  get_url: 
+    url="{{ zabbix_ubuntu_trusty_url }}"
+    dest="/tmp/{{ zabbix_ubuntu_trusty_pkg }}.deb"
+  when: package_check_deb.rc == 1 and ansible_distribution_release == "trusty"
+
+- name: Download zabbix-release_3.2-1+xenial_all.deb
+  get_url: 
+    url="{{ zabbix_ubuntu_xenial_url }}"
+    dest="/tmp/{{ zabbix_ubuntu_xenial_pkg }}.deb"
+  when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
+
+- name: Install zabbix zabbix-release_3.2-1+trusty_all.deb
+  apt: deb="/tmp/{{ zabbix_ubuntu_trusty_pkg }}.deb"
+  sudo: true
+  when: package_check_deb.rc == 1 and ansible_distribution_release == "trusty"
+
+- name: Install zabbix zabbix-release_3.2-1+xenial_all.deb
+  apt: deb="/tmp/{{ zabbix_ubuntu_xenial_pkg }}.deb"
+  sudo: true
+  when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
+
+- name: Install zabbix agent on Ubuntu 14.04 LTS (trusty)
+  apt: pkg=zabbix-agent state=present  update_cache=yes
+  when: package_check_deb.rc == 1 and ansible_distribution_release == "trusty"
+
+- name: install zabbix agent on Ubuntu 16.04 LTS (xenial)
+  apt: pkg=zabbix-agent state=present update_cache=yes
+  when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
+
+
