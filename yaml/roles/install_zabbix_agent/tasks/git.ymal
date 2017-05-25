@@ -1,7 +1,6 @@
 - name: Install git
   apt: pkg=git state=present update_cache=yes
 
-
 - name: Check if ef-zabbix-script is download
   stat: path=/var/lib/ef_zabbix/zabbix_agentd.conf
   register: ef_zabbix_download
@@ -19,6 +18,9 @@
   when: ef_zabbix_download.stat.exists == false
 
 - name: Delete ef-scripts from root
-  file: path=/tmp/ef_zabbix state=absent
+  file: path=/tmp/ef_zabbixi/ state=absent
   when: ef_zabbix_download.stat.exists == false
+
+- name: Modify directory permisson
+  file: path=/var/lib/ef_zabbix/ owner=zabbix group=zabbix mode=0755 recurse=yes"
 

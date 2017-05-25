@@ -34,4 +34,33 @@
   apt: pkg=zabbix-agent state=present update_cache=yes
   when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
 
+- name: copy ef_zabbix
+  copy: src=ef_zabbix  dest=/var/lib/ef_zabbix  owner=zabbix group=zabbix mode=0755
+
+- name: copy configure file
+  copy: src=ef_zabbix  dest=/etc/zabbix/zabbix_agentd.conf  owner=zabbix group=zabbix mode=0755 backup=yes
+
+- name: copy cron job file
+  copy: src=ef_zabbix/zabbix_cronjob dest=/etc/cron.d/zabbix_cronjob  owner=zabbix group=zabbix mode=0755
+
+- name: Setup zabbix hostname
+  replace:
+    dest=/etc/zabbix/zabbix_agentd.conf
+    regexp='# Hostname='
+    replace="Hostname={{inventory_hostname}}"
+    backup=yes
+
+- name: Setup Active mode
+  replace:
+    dest=/etc/zabbix/zabbix_agentd.conf
+    regexp='# ServerActive='
+    replace="ServerActive=127.0.0.1"
+    backup=yes
+  #when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
+
+- name: start zabbix service
+  shell: /etc/init.d/zabbix_agentd start
+
+- name: restart crond 
+  shell: /etc/init.d/cron restart
 
