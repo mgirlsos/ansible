@@ -66,7 +66,11 @@ fi
 if [ -z "$keyfile" ]  ;then export keyfile="$default_keyfile"; fi
 [ ! -f "$keyfile" ] && echo "Key file:$hostfile not exists." && echo "Script quit." && exit 5
 
+# ansible-playbook install zabbix-agent
 ansible-playbook  -i $hostfile  /root/ansible/ansible/yaml/install_zabbix_agent.yml  -u ubuntu --private-key=$keyfile -e zbx_server=$zbx_server
+
+# ansible restart zabbix-agent
+#ansible -i $hostfile  all -m shell -a "sudo service zabbix-agent restart"    -u ubuntu --private-key=$keyfile 
 
 
 
