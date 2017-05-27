@@ -34,31 +34,57 @@
   apt: pkg=zabbix-agent state=present update_cache=yes
   when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
 
-- name: copy ef_zabbix
-  copy: src=templates/ef_zabbix/  dest=/var/lib/ef_zabbix  owner=zabbix group=zabbix mode=0755 directory_mode=yes
+- name: Uncompression ef-zabbix-scripts.tar.gz
+  unarchive: src=ef-zabbix-scripts.tar.gz dest=/var/lib
 
-- name: copy configure file
+- name : Change /var/lib/ef_zabbix  permission
+  file: 
+   path: /var/lib/ef_zabbix
+   owner: zabbix
+   group: zabbix
+   recurse: yes
+
+- name: copy  zabbix agent configure file
   template: src=ef_zabbix/zabbix_agentd.conf  dest=/etc/zabbix/zabbix_agentd.conf  owner=zabbix group=zabbix mode=644 backup=yes
 
-- name: copy cron job file
-  template: src=ef_zabbix/zabbix_cronjob dest=/etc/cron.d/zabbix_cronjob  owner=zabbix group=zabbix mode=644
+- name: copy zabbix cron job file
+  template: src=ef_zabbix/zabbix_cronjob dest=/etc/cron.d/zabbix_cronjob  owner=root group=root mode=644
 
-- name: Setup zabbix hostname
+- name: copy zabbix sudo file
+  template: src=ef_zabbix/zabbix  dest=/etc/sudoers.d/zabbix  owner=root group=root mode=644
+
+- name: Setup zabbix  agent file hostname
   replace:
     dest=/etc/zabbix/zabbix_agentd.conf
     regexp='# Hostname='
     replace="Hostname={{inventory_hostname}}"
+    #backup=yes
+
+- name: Setup zabbix server ip
+  replace:
+    dest=/etc/zabbix/zabbix_agentd.conf
+    regexp='# Server='
+    replace="Server=10.163.13.99,10.160.114.182"
 
 
-- name: Setup Active mode
+- name: Setup zabbix agent Active mode
   replace:
     dest=/etc/zabbix/zabbix_agentd.conf
     regexp='# ServerActive='
-    replace="ServerActive=127.0.0.1"
+    replace="ServerActive={{ zbx_server }}"
+    #backup=yes
   #when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
 
-- name: start zabbix service
-  shell: /etc/init.d/zabbix-agent start
+#  notify:
+#     - Restart zabbix-agent
+
+- name: install   systat tools
+  apt: pkg=sysstat  state=present update_cache=yes
+
+- name: Ensure zabbix-agent is running
+  service:
+    name=zabbix-agent
+    state=started
 
 - name: restart crond 
   shell: /etc/init.d/cron restart

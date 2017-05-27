@@ -1,3 +1,0 @@
-- hosts: test
-  roles:
-    - delete_zabbix_agent

@@ -34,32 +34,35 @@
   apt: pkg=zabbix-agent state=present update_cache=yes
   when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
 
-- name: copy ef_zabbix
-  copy: src=ef_zabbix  dest=/var/lib/ef_zabbix  owner=zabbix group=zabbix mode=0755
+- name: Uncompression ef-zabbix-scripts.tar.gz
+  unarchive: src=ef-zabbix-scripts.tar.gz dest=/tmp
 
-- name: copy configure file
-  copy: src=ef_zabbix  dest=/etc/zabbix/zabbix_agentd.conf  owner=zabbix group=zabbix mode=0755 backup=yes
+- name: copy  zabbix agent configure file
+  template: src=ef_zabbix/zabbix_agentd.conf  dest=/etc/zabbix/zabbix_agentd.conf  owner=zabbix group=zabbix mode=644 backup=yes
 
-- name: copy cron job file
-  copy: src=ef_zabbix/zabbix_cronjob dest=/etc/cron.d/zabbix_cronjob  owner=zabbix group=zabbix mode=0755
+- name: copy zabbix cron job file
+  template: src=ef_zabbix/zabbix_cronjob dest=/etc/cron.d/zabbix_cronjob  owner=zabbix group=zabbix mode=644
 
-- name: Setup zabbix hostname
+- name: copy zabbix sudo file
+  template: src=ef_zabbix/zabbix  dest=/etc/sudoers.d/zabbix  owner=root group=root mode=644
+
+- name: Setup zabbix  agent file hostname
   replace:
     dest=/etc/zabbix/zabbix_agentd.conf
     regexp='# Hostname='
     replace="Hostname={{inventory_hostname}}"
-    backup=yes
+    #backup=yes
 
-- name: Setup Active mode
+- name: Setup zabbix agent Active mode
   replace:
     dest=/etc/zabbix/zabbix_agentd.conf
     regexp='# ServerActive='
     replace="ServerActive=127.0.0.1"
-    backup=yes
+    #backup=yes
   #when: package_check_deb.rc == 1 and ansible_distribution_release == "xenial"
 
 - name: start zabbix service
-  shell: /etc/init.d/zabbix_agentd start
+  shell: /etc/init.d/zabbix-agent restart
 
 - name: restart crond 
   shell: /etc/init.d/cron restart
